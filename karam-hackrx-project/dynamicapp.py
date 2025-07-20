@@ -1,3 +1,11 @@
+# SQLite3 compatibility fix for ChromaDB on Streamlit Cloud
+try:
+    __import__('pysqlite3')
+    import sys
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+except ImportError:
+    pass
+
 import streamlit as st
 from dynamic import process_document_and_query, process_multiple_queries, get_document_summary
 

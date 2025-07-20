@@ -8,6 +8,7 @@ langchain-chroma
 langchain-text-splitters
 openai
 chromadb
+pysqlite3-binary
 pypdf
 pandas
 numpy
