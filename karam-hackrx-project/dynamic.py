@@ -33,19 +33,43 @@ class DocumentProcessor:
     """Enhanced document processor with additional features"""
     
     def __init__(self):
-        self.azure_embeddings = AzureOpenAIEmbeddings(
-            azure_deployment="text-embedding-3-small",
-            openai_api_version="2024-02-01",
-            api_key=os.getenv("EMBEDDING_AZURE_API_KEY"),
-            azure_endpoint=os.getenv("EMBEDDING_AZURE_ENDPOINT")
-        )
-        self.llm = AzureChatOpenAI(
-            azure_deployment="gpt-4o-mini",
-            openai_api_version="2024-02-01",
-            temperature=0,
-            api_key=os.getenv("GENERATION_AZURE_API_KEY"),
-            azure_endpoint=os.getenv("GENERATION_AZURE_ENDPOINT")
-        )
+        # Check for required environment variables
+        required_env_vars = [
+            "EMBEDDING_AZURE_API_KEY",
+            "EMBEDDING_AZURE_ENDPOINT", 
+            "GENERATION_AZURE_API_KEY",
+            "GENERATION_AZURE_ENDPOINT"
+        ]
+        
+        missing_vars = [var for var in required_env_vars if not os.getenv(var)]
+        if missing_vars:
+            raise ValueError(
+                f"❌ Missing required environment variables: {', '.join(missing_vars)}\n"
+                f"Please set these in your Streamlit Cloud secrets or .env file.\n"
+                f"See DEPLOYMENT_GUIDE.md for setup instructions."
+            )
+        
+        try:
+            self.azure_embeddings = AzureOpenAIEmbeddings(
+                azure_deployment="text-embedding-3-small",
+                openai_api_version="2024-02-01",
+                api_key=os.getenv("EMBEDDING_AZURE_API_KEY"),
+                azure_endpoint=os.getenv("EMBEDDING_AZURE_ENDPOINT")
+            )
+            self.llm = AzureChatOpenAI(
+                azure_deployment="gpt-4o-mini",
+                openai_api_version="2024-02-01",
+                temperature=0,
+                api_key=os.getenv("GENERATION_AZURE_API_KEY"),
+                azure_endpoint=os.getenv("GENERATION_AZURE_ENDPOINT")
+            )
+            logger.info("✅ Azure OpenAI services initialized successfully")
+        except Exception as e:
+            raise ValueError(
+                f"❌ Failed to initialize Azure OpenAI services: {str(e)}\n"
+                f"Please check your API keys and endpoints are correct."
+            )
+        
         self.processing_history = []
 
 def process_document_and_query(uploaded_file, query: str, **kwargs) -> Dict[str, Any]:

@@ -7,6 +7,46 @@ except ImportError:
     pass
 
 import streamlit as st
+import os
+
+# Check for required credentials before importing other modules
+def check_credentials():
+    required_vars = [
+        "EMBEDDING_AZURE_API_KEY",
+        "EMBEDDING_AZURE_ENDPOINT", 
+        "GENERATION_AZURE_API_KEY",
+        "GENERATION_AZURE_ENDPOINT"
+    ]
+    missing_vars = [var for var in required_vars if not os.getenv(var)]
+    return missing_vars
+
+# Check credentials first
+missing_credentials = check_credentials()
+if missing_credentials:
+    st.error("🔑 **Missing Azure OpenAI Credentials**")
+    st.markdown(f"""
+    The following environment variables are required but not set:
+    
+    {chr(10).join([f'• `{var}`' for var in missing_credentials])}
+    
+    **To fix this on Streamlit Cloud:**
+    1. Go to your [Streamlit Cloud dashboard](https://share.streamlit.io/)
+    2. Click on your app → ⚙️ Settings → Secrets
+    3. Add the following in TOML format:
+    
+    ```toml
+    EMBEDDING_AZURE_API_KEY = "your_api_key_here"
+    EMBEDDING_AZURE_ENDPOINT = "https://your-resource.openai.azure.com/"
+    GENERATION_AZURE_API_KEY = "your_api_key_here" 
+    GENERATION_AZURE_ENDPOINT = "https://your-resource.openai.azure.com/"
+    ```
+    
+    4. Save and restart your app
+    
+    **Need help?** Check the `DEPLOYMENT_GUIDE.md` file in your repository.
+    """)
+    st.stop()
+
 from dynamic import process_document_and_query, process_multiple_queries, get_document_summary
 
 # --- Page Configuration ---
